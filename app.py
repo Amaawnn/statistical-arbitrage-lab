@@ -3,11 +3,19 @@
 from __future__ import annotations
 
 from io import BytesIO
+from pathlib import Path
+import sys
 
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+
+# Make the src-layout package importable when Streamlit Cloud runs app.py
+# directly from a repository checkout.
+SRC_DIR = Path(__file__).resolve().parent / "src"
+if str(SRC_DIR) not in sys.path:
+    sys.path.insert(0, str(SRC_DIR))
 
 from statarb import PairConfig, adf_diagnostic, backtest_pair, half_life, make_synthetic_pair, performance_report, walk_forward
 
