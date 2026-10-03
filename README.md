@@ -2,6 +2,12 @@
 
 A compact research framework for **pairs trading** with Engle–Granger cointegration screening, OLS hedge ratios, rolling spread normalization, regime-aware signals, next-session execution, leg-level costs, walk-forward evaluation, and quantitative performance reporting.
 
+## Live Demo
+
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://statistical-arbitrage-lab.streamlit.app/)
+
+Explore the interactive dashboard: [Live Demo](https://statistical-arbitrage-lab.streamlit.app/)
+
 > Research software, not investment advice. Backtests are sensitive to data quality, parameter choices, execution assumptions, and market impact. Validate independently before using capital.
 
 ## What it does
