@@ -9,6 +9,35 @@ A compact research framework for **pairs trading** with Engle–Granger cointegr
 Explore the interactive dashboard: [Live Demo](https://statistical-arbitrage-lab.streamlit.app/)
 
 > Research software, not investment advice. Backtests are sensitive to data quality, parameter choices, execution assumptions, and market impact. Validate independently before using capital.
+>
+> ## Pair Quality Score
+
+The lab includes an interpretable **Pair Quality Score** designed to rank
+candidate pairs for statistical-arbitrage research.
+
+The score combines multiple research diagnostics:
+
+| Metric | Purpose |
+|---|---|
+| Engle-Granger p-value | Measures evidence of cointegration |
+| ADF p-value | Tests spread stationarity |
+| Mean-reversion half-life | Measures how quickly the spread tends to revert |
+| Sharpe ratio | Measures risk-adjusted performance |
+| Maximum drawdown | Measures downside risk |
+
+The resulting score is normalized to **0–100** and classified as:
+
+- **0–39:** Weak Candidate
+- **40–69:** Moderate Candidate
+- **70–100:** Strong Candidate
+
+The scoring system is intentionally transparent and rule-based rather than
+machine-learning based, making the research decision process easier to
+interpret and audit.
+
+> **Important:** The Pair Quality Score is a research-ranking tool, not a
+> trading recommendation. Statistical significance and historical
+> performance do not guarantee future returns.
 
 ## What it does
 
