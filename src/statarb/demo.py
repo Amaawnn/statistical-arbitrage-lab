@@ -9,7 +9,7 @@ from .metrics import performance_report
 from .walkforward import walk_forward
 
 
-def synthetic_prices(n: int = 1800, seed: int = 7) -> pd.DataFrame:
+def make_synthetic_pair(n: int = 1800, seed: int = 7) -> pd.DataFrame:
     rng = np.random.default_rng(seed)
     dates = pd.bdate_range("2018-01-01", periods=n)
     common = np.cumsum(rng.normal(0, 0.008, n))
@@ -21,8 +21,13 @@ def synthetic_prices(n: int = 1800, seed: int = 7) -> pd.DataFrame:
     return pd.DataFrame({"ASSET_A": np.exp(log_y), "ASSET_B": np.exp(log_x)}, index=dates)
 
 
+def synthetic_prices(n: int = 1800, seed: int = 7) -> pd.DataFrame:
+    """Backward-compatible alias for :func:`make_synthetic_pair`."""
+    return make_synthetic_pair(n=n, seed=seed)
+
+
 def main() -> None:
-    prices = synthetic_prices()
+    prices = make_synthetic_pair()
     y, x = prices.ASSET_A, prices.ASSET_B
     config = PairConfig(formation_window=252, z_window=60, entry_z=2.0, exit_z=0.5,
                         cost_bps=5.0, regime_vol_quantile=None)

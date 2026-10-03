@@ -24,6 +24,47 @@ python -m venv .venv
 python -m pip install -e .
 ```
 
+This installs the research package and the Streamlit and Plotly dashboard dependencies. To install dependencies without installing the package, use `python -m pip install -r requirements.txt`.
+
+## Interactive dashboard
+
+Start the demo from the project root:
+
+```bash
+streamlit run app.py
+```
+
+The app opens in your browser. Choose **Synthetic Demo** to generate a seeded cointegrated pair and control its random seed and observation count, or choose **CSV Upload** and provide historical prices. Set the walk-forward and strategy controls in the sidebar, then select **Run Backtest**. Performance cards and equity/drawdown charts report accepted walk-forward out-of-sample periods; the signal charts show the causal full-history signal trace.
+
+### Demo screenshot
+
+> Screenshot placeholder: capture the dashboard after launch and add the image here.
+
+### CSV format
+
+CSV uploads must contain exactly these required fields (additional columns are ignored):
+
+```csv
+Date,Asset_Y,Asset_X
+2022-01-03,100.25,54.10
+2022-01-04,101.10,54.32
+```
+
+Dates must parse as unique dates. Both asset columns must contain finite, numeric, positive prices. Rows are sorted chronologically by date. Use adjusted prices when possible and align both instruments to the same trading calendar before upload.
+
+### Dashboard workflow and methodology
+
+1. Choose synthetic data or upload the required CSV format.
+2. Set training and test lengths, rolling Z-score lookback, entry/exit thresholds, ADF significance, maximum half-life, and per-leg transaction cost.
+3. Select **Run Backtest**. Each walk-forward fold estimates the Engle–Granger relationship and residual diagnostics on its training window; only folds that meet the cointegration, ADF, and half-life filters contribute out-of-sample returns.
+4. Review diagnostics, signal charts, accepted-fold table, and out-of-sample performance cards.
+
+The spread is `log(Asset_Y) - (alpha + beta * log(Asset_X))`, with alpha and beta estimated by trailing OLS. The rolling spread Z-score creates mean-reversion entries and exits. The causal volatility regime gate is evaluated on historical spread volatility. Close signals are shifted one bar before position returns are credited. Transaction costs are charged per leg according to changes in leg notional. Total Return, CAGR, Sharpe, volatility, drawdown, win rate, trading days, and costs are calculated from accepted walk-forward test periods only.
+
+### Limitations
+
+This is a research/backtesting tool. Synthetic data is only a software demonstration and is not a market forecast. Close-to-close execution approximates fills; the framework does not model borrow availability, financing, market impact, taxes, corporate actions, delisting, or data survivorship. Cointegration and hedge ratios can change over time. Skipped validation folds are excluded from the performance sample, so inspect fold diagnostics and report the accepted-period coverage when interpreting results. Historical or synthetic results do not guarantee future performance.
+
 ## Quick start
 
 Run a deterministic synthetic example (no market-data API or credentials required):

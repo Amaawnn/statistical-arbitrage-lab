@@ -5,8 +5,6 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from .cointegration import estimate_hedge_ratio
-
 
 @dataclass(frozen=True)
 class PairConfig:
@@ -32,14 +30,13 @@ class PairConfig:
 
 def _rolling_ols(y: pd.Series, x: pd.Series, window: int) -> tuple[pd.Series, pd.Series]:
     log_y, log_x = np.log(y), np.log(x)
-    beta = pd.Series(np.nan, index=y.index, dtype=float)
-    intercept = beta.copy()
-    for end in range(window, len(y) + 1):
-        start = end - window
-        if end < len(y):
-            b, a = estimate_hedge_ratio(y.iloc[start:end], x.iloc[start:end])
-            beta.iloc[end] = b
-            intercept.iloc[end] = a
+    # The shift makes the estimate at t use only observations through t-1.
+    variance_x = log_x.rolling(window, min_periods=window).var().shift(1)
+    covariance = log_y.rolling(window, min_periods=window).cov(log_x).shift(1)
+    beta = covariance.div(variance_x.where(variance_x > 0))
+    mean_y = log_y.rolling(window, min_periods=window).mean().shift(1)
+    mean_x = log_x.rolling(window, min_periods=window).mean().shift(1)
+    intercept = mean_y - beta * mean_x
     return beta, intercept
 
 

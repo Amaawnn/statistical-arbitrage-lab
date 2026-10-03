@@ -9,7 +9,7 @@ description = "A regime-aware, walk-forward research framework for cointegrated 
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
-dependencies = ["numpy>=1.24", "pandas>=2.0", "statsmodels>=0.14"]
+dependencies = ["numpy>=1.24", "pandas>=2.0", "statsmodels>=0.14", "streamlit>=1.49", "plotly>=5.20"]
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
