@@ -67,6 +67,10 @@ Dates must parse as unique dates. Both asset columns must contain finite, numeri
 
 The spread is `log(Asset_Y) - (alpha + beta * log(Asset_X))`, with alpha and beta estimated by trailing OLS. The rolling spread Z-score creates mean-reversion entries and exits. The causal volatility regime gate is evaluated on historical spread volatility. Close signals are shifted one bar before position returns are credited. Transaction costs are charged per leg according to changes in leg notional. Total Return, CAGR, Sharpe, volatility, drawdown, win rate, trading days, and costs are calculated from accepted walk-forward test periods only.
 
+### Pair Quality Score
+
+The optional 0–100 Pair Quality Score is an explainable, fixed-tier rubric rather than a fitted model. It awards up to 25 points for Engle–Granger cointegration p-value, 20 for the residual ADF p-value, 20 for half-life, 20 for aggregate walk-forward out-of-sample Sharpe, and 15 for maximum drawdown. Smaller p-values, shorter half-life, higher Sharpe, and shallower drawdown earn more points. Scores of 0–49 are **Weak Candidates**, 50–74 are **Moderate Candidates**, and 75–100 are **Strong Candidates**. The dashboard shows component points; the diagnostics come from the latest accepted training fold, while Sharpe and drawdown come from the combined accepted test folds.
+
 ### Limitations
 
 This is a research/backtesting tool. Synthetic data is only a software demonstration and is not a market forecast. Close-to-close execution approximates fills; the framework does not model borrow availability, financing, market impact, taxes, corporate actions, delisting, or data survivorship. Cointegration and hedge ratios can change over time. Skipped validation folds are excluded from the performance sample, so inspect fold diagnostics and report the accepted-period coverage when interpreting results. Historical or synthetic results do not guarantee future performance.

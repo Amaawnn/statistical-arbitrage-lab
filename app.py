@@ -17,7 +17,16 @@ SRC_DIR = Path(__file__).resolve().parent / "src"
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from statarb import PairConfig, adf_diagnostic, backtest_pair, half_life, make_synthetic_pair, performance_report, walk_forward
+from statarb import (
+    PairConfig,
+    adf_diagnostic,
+    backtest_pair,
+    calculate_pair_quality_score,
+    half_life,
+    make_synthetic_pair,
+    performance_report,
+    walk_forward,
+)
 
 
 def parse_price_csv(file) -> pd.DataFrame:
@@ -84,8 +93,21 @@ def _analysis(prices: pd.DataFrame, settings: dict) -> dict:
     training_spread = np.log(training.Asset_Y) - alpha - beta * np.log(training.Asset_X)
     adf = adf_diagnostic(training_spread, regression="n")
     hl = half_life(training_spread)
+    pair_quality = None
+    accepted_folds = walk.fold_diagnostics.loc[walk.fold_diagnostics["accepted"]]
+    if not walk.out_of_sample_returns.empty and not accepted_folds.empty:
+        latest_fold = accepted_folds.iloc[-1]
+        oos_metrics = performance_report(walk.out_of_sample_returns)
+        pair_quality = calculate_pair_quality_score(
+            cointegration_pvalue=float(latest_fold["coint_pvalue"]),
+            adf_pvalue=float(latest_fold["adf_pvalue"]),
+            half_life_bars=float(latest_fold["half_life"]),
+            sharpe_ratio=oos_metrics["sharpe"],
+            maximum_drawdown=oos_metrics["max_drawdown"],
+        )
     return {
         "walk": walk, "full": full, "cards": performance_cards(walk.out_of_sample_returns, walk.fold_results),
+        "pair_quality": pair_quality,
         "diagnostics": {
             "OLS hedge ratio": beta, "Alpha": alpha, "ADF statistic": adf["statistic"],
             "ADF p-value": adf["pvalue"], "Half-life": hl,
@@ -216,6 +238,19 @@ def main() -> None:
         prices = st.session_state.prices
         if st.session_state.data_mode == "Synthetic Demo":
             st.info("Synthetic data is being used. Reported performance is computed from accepted walk-forward out-of-sample folds only.")
+        st.subheader("Pair Quality Score")
+        pair_quality = result["pair_quality"]
+        if pair_quality is None:
+            st.info("Pair Quality Score is unavailable because no accepted walk-forward test returns are available.")
+        else:
+            score_col, detail_col = st.columns([1, 3])
+            score_col.metric("Composite score", f"{pair_quality.score:.1f} / 100", pair_quality.classification)
+            with detail_col:
+                st.caption("The score combines the latest accepted training fold's cointegration, ADF, and half-life diagnostics with aggregate walk-forward out-of-sample Sharpe and drawdown.")
+                st.dataframe(
+                    pd.DataFrame({"Component": pair_quality.component_scores.keys(), "Points": pair_quality.component_scores.values()}),
+                    width="stretch", hide_index=True,
+                )
         st.subheader("Performance · walk-forward out-of-sample")
         cards = result["cards"]
         labels = [
