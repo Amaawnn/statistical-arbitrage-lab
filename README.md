@@ -10,7 +10,7 @@ Explore the interactive dashboard: [Live Demo](https://statistical-arbitrage-lab
 
 > Research software, not investment advice. Backtests are sensitive to data quality, parameter choices, execution assumptions, and market impact. Validate independently before using capital.
 >
-> ## Pair Quality Score
+ ## Pair Quality Score
 
 The lab includes an interpretable **Pair Quality Score** designed to rank
 candidate pairs for statistical-arbitrage research.
